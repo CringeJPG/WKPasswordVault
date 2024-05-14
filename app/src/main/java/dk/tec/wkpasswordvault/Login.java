@@ -2,6 +2,7 @@ package dk.tec.wkpasswordvault;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.textclassifier.TextLinks;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,6 +20,8 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.Headers;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -55,10 +58,9 @@ public class Login extends AppCompatActivity {
     }
 
     public void login() {
-        loggedIn();
         String username = this.username.getText().toString();
         String password = this.password.getText().toString();
-        String url = "http://10.131.209.16:8888/login";
+        String url = "http://10.131.209.16:8888/user/login";
 
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
@@ -71,20 +73,19 @@ public class Login extends AppCompatActivity {
                 .post(requestBody)
                 .build();
 
-//        try (Response response = client.newCall(request).execute()) {
-//
-//            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-//
-//            if (response.headers().toString().equals("HTTP/1.1 200 OK")) {
-//                loggedIn();
-//            }
-//        } catch (SocketTimeoutException e) {
-//            System.out.println("Timeout");
-//        } catch (MalformedURLException e) {
-//            System.out.println("Malformed URL");
-//        } catch (IOException e) {
-//            System.out.println("IO Exception");
-//        }
+        Call call = client.newCall(request);
+        call.enqueue(new Callback() {
+            public void onResponse(Call call, Response response)
+                    throws IOException {
+                if (response.code() == 200) loggedIn();
+
+                return;
+            }
+
+            public void onFailure(Call call, IOException e) {
+                return;
+            }
+        });
     }
 
     public void loggedIn() {

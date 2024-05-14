@@ -11,11 +11,19 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class Register extends AppCompatActivity {
+
+    private final OkHttpClient client = new OkHttpClient();
 
     EditText username, password, repeatPassword;
     Button register;
@@ -45,7 +53,7 @@ public class Register extends AppCompatActivity {
         }
         String username = this.username.getText().toString();
         String password = this.password.getText().toString();
-        String url = "http://10.131.209.16:8888/register";
+        String url = "http://10.131.209.16:8888/user/register";
 
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
@@ -58,20 +66,17 @@ public class Register extends AppCompatActivity {
                 .post(requestBody)
                 .build();
 
-//        try (Response response = client.newCall(request).execute()) {
-//
-//            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-//
-//            if (response.headers().toString().equals("HTTP/1.1 200 OK")) {
-//                loginReturn();
-//            }
-//        } catch (SocketTimeoutException e) {
-//            System.out.println("Timeout");
-//        } catch (MalformedURLException e) {
-//            System.out.println("Malformed URL");
-//        } catch (IOException e) {
-//            System.out.println("IO Exception");
-//        }
+        Call call = client.newCall(request);
+        call.enqueue(new Callback() {
+            public void onResponse(Call call, Response response)
+                    throws IOException {
+                if (response.code() == 200) loginReturn();
+            }
+
+            public void onFailure(Call call, IOException e) {
+                return;
+            }
+        });
     }
 
     public void loginReturn() {
