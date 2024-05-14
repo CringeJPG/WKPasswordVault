@@ -40,5 +40,6 @@ dependencies {
     implementation(libs.okhttp)
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
     implementation(libs.gson)
-
+    // https://mvnrepository.com/artifact/org.jasypt/jasypt
+    implementation("org.jasypt:jasypt:1.9.3")
 }
