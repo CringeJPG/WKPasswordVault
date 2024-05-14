@@ -38,7 +38,7 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation(libs.okhttp)
-
-
+    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    implementation(libs.gson)
 
 }

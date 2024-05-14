@@ -1,8 +1,8 @@
 package dk.tec.wkpasswordvault;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.textclassifier.TextLinks;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -13,13 +13,13 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.URL;
+import com.google.gson.Gson;
 
-import okhttp3.Headers;
+import java.io.IOException;
+
+import dk.tec.wkpasswordvault.models.User;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -57,7 +57,7 @@ public class Login extends AppCompatActivity {
     public void login() {
         String username = this.username.getText().toString();
         String password = this.password.getText().toString();
-        String url = "http://10.131.209.16:8888/login";
+        String url = "http://10.131.209.16:8888/user/login";
 
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
@@ -70,20 +70,29 @@ public class Login extends AppCompatActivity {
                 .post(requestBody)
                 .build();
 
-        try (Response response = client.newCall(request).execute()) {
+        Call call = client.newCall(request);
+        call.enqueue(new Callback() {
+            public void onResponse(Call call, Response response)
+                    throws IOException {
+                if (response.code() == 200) {
+                    SharedPreferences sharedPreferences = getSharedPreferences("User", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
 
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+                    Gson gson = new Gson();
+                    int userId = gson.fromJson(response.body().string(), User.class).getId();
 
-            if (response.headers().toString().equals("HTTP/1.1 200 OK")) {
-                loggedIn();
+                    editor.putInt("userId", userId).apply();
+
+                    loggedIn();
+                }
+
+                return;
             }
-        } catch (SocketTimeoutException e) {
-            System.out.println("Timeout");
-        } catch (MalformedURLException e) {
-            System.out.println("Malformed URL");
-        } catch (IOException e) {
-            System.out.println("IO Exception");
-        }
+
+            public void onFailure(Call call, IOException e) {
+                return;
+            }
+        });
     }
 
     public void loggedIn() {
