@@ -55,7 +55,6 @@ public class Login extends AppCompatActivity {
     }
 
     public void login() {
-        loggedIn();
         String username = this.username.getText().toString();
         String password = this.password.getText().toString();
         String url = "http://10.131.209.16:8888/login";
@@ -71,20 +70,20 @@ public class Login extends AppCompatActivity {
                 .post(requestBody)
                 .build();
 
-//        try (Response response = client.newCall(request).execute()) {
-//
-//            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-//
-//            if (response.headers().toString().equals("HTTP/1.1 200 OK")) {
-//                loggedIn();
-//            }
-//        } catch (SocketTimeoutException e) {
-//            System.out.println("Timeout");
-//        } catch (MalformedURLException e) {
-//            System.out.println("Malformed URL");
-//        } catch (IOException e) {
-//            System.out.println("IO Exception");
-//        }
+        try (Response response = client.newCall(request).execute()) {
+
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            if (response.headers().toString().equals("HTTP/1.1 200 OK")) {
+                loggedIn();
+            }
+        } catch (SocketTimeoutException e) {
+            System.out.println("Timeout");
+        } catch (MalformedURLException e) {
+            System.out.println("Malformed URL");
+        } catch (IOException e) {
+            System.out.println("IO Exception");
+        }
     }
 
     public void loggedIn() {
